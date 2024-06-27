@@ -1,0 +1,68 @@
+#Gerar um Intervalo de Endereços IP a partir de um Endereço CIDR em Python
+
+from scapy.all import sr1, IP, TCP, ICMP
+import ipaddress
+
+# Função para escanear portas TCP
+def tcp_port_scan(host, start_port, end_port):
+    for port in range(start_port, end_port + 1):
+        packet = IP(dst=host) / TCP(dport=port, flags="S")  # Criar pacote SYN
+        response = sr1(packet, timeout=1, verbose=0)  # Enviar pacote e esperar resposta
+        
+        if response is None:
+            print(f"Porta {port} está filtrada ou silenciosamente descartada.")
+        elif response.haslayer(TCP):
+            if response[TCP].flags == 0x12:  # Se receber SYN-ACK
+                # Enviar pacote RST para fechar a conexão
+                rst_packet = IP(dst=host) / TCP(dport=port, flags="R")
+                sr1(rst_packet, timeout=1, verbose=0)
+                print(f"Porta {port} está aberta.")
+            elif response[TCP].flags == 0x14:  # Se receber RST
+                print(f"Porta {port} está fechada.")
+            else:
+                print(f"Porta {port} está filtrada ou silenciosamente descartada.")
+        else:
+            print(f"Porta {port} está filtrada ou silenciosamente descartada.")
+
+# Função para varredura de ping ICMP
+def icmp_ping_sweep(network):
+    net = ipaddress.ip_network(network, strict=False)
+    live_hosts = 0
+
+    for host in net.hosts():
+        packet = IP(dst=str(host)) / ICMP()  # Criar pacote ICMP
+        response = sr1(packet, timeout=1, verbose=0)  # Enviar pacote e esperar resposta
+        
+        if response is None:
+            print(f"{host} está inativo ou não responde.")
+        elif response.haslayer(ICMP):
+            if response[ICMP].type == 3 and response[ICMP].code in [1, 2, 3, 9, 10, 13]:
+                print(f"{host} está bloqueando ativamente o tráfego ICMP.")
+            else:
+                print(f"{host} está respondendo.")
+                live_hosts += 1
+
+    print(f"{live_hosts} hosts estão online.")
+
+# Função principal para mostrar o menu e executar a escolha do usuário
+def main():
+    while True:
+        print("Escolha o modo de operação:")
+        print("1. Scanner de Faixa de Portas TCP")
+        print("2. Varredura de Ping ICMP")
+        choice = input("Digite 1 ou 2: ")
+
+        if choice == '1':
+            host = input("Digite o IP do host: ")
+            start_port = int(input("Digite a porta inicial: "))
+            end_port = int(input("Digite a porta final: "))
+            tcp_port_scan(host, start_port, end_port)
+        elif choice == '2':
+            network = input("Digite o endereço de rede (ex: 10.10.0.0/24): ")
+            icmp_ping_sweep(network)
+        else:
+            print("Escolha inválida, tente novamente.")
+
+# Executar a função principal
+if __name__ == "__main__":
+    main()

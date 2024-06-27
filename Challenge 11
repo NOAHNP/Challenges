@@ -1,0 +1,38 @@
+#ferramenta de varredura
+
+from scapy.all import sr1, IP, TCP
+import logging
+
+# Desativar mensagens de log de Scapy
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+
+def scan_ports(host, port_range):
+    for port in port_range:
+        # Criar pacote SYN
+        packet = IP(dst=host) / TCP(dport=port, flags="S")
+        # Enviar pacote e aguardar resposta
+        response = sr1(packet, timeout=1, verbose=0)
+        
+        if response is None:
+            print(f"Porta {port} está filtrada ou silenciosamente descartada.")
+        elif response.haslayer(TCP):
+            if response[TCP].flags == 0x12:  # SYN-ACK
+                # Enviar pacote RST para fechar a conexão
+                rst_packet = IP(dst=host) / TCP(dport=port, flags="R")
+                sr1(rst_packet, timeout=1, verbose=0)
+                print(f"Porta {port} está aberta.")
+            elif response[TCP].flags == 0x14:  # RST
+                print(f"Porta {port} está fechada.")
+            else:
+                print(f"Porta {port} está filtrada ou silenciosamente descartada.")
+        else:
+            print(f"Porta {port} está filtrada ou silenciosamente descartada.")
+
+if __name__ == "__main__":
+    # Defina o IP do host aqui
+    host = "192.168.1.1"
+    # Defina a faixa de portas a serem escaneadas aqui
+    port_range = range(20, 25)
+    
+    # Chamar a função para escanear as portas
+    scan_ports(host, port_range)

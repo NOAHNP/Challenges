@@ -1,0 +1,57 @@
+#Varredura de rede
+from scapy.all import sr1, IP, TCP, ICMP
+
+# Função para escanear portas TCP
+def tcp_port_scan(host):
+    start_port = 1
+    end_port = 1024
+    for port in range(start_port, end_port + 1):
+        # Criar pacote SYN
+        packet = IP(dst=host) / TCP(dport=port, flags="S")
+        # Enviar pacote e esperar resposta
+        response = sr1(packet, timeout=1, verbose=0)
+        
+        if response is None:
+            print(f"Porta {port} está filtrada ou silenciosamente descartada.")
+        elif response.haslayer(TCP):
+            if response[TCP].flags == 0x12:  # Se receber SYN-ACK
+                # Enviar pacote RST para fechar a conexão
+                rst_packet = IP(dst=host) / TCP(dport=port, flags="R")
+                sr1(rst_packet, timeout=1, verbose=0)
+                print(f"Porta {port} está aberta.")
+            elif response[TCP].flags == 0x14:  # Se receber RST
+                print(f"Porta {port} está fechada.")
+        else:
+            print(f"Porta {port} está filtrada ou silenciosamente descartada.")
+
+# Função para enviar ping ICMP
+def icmp_ping(host):
+    # Criar pacote ICMP
+    packet = IP(dst=host) / ICMP()
+    # Enviar pacote e esperar resposta
+    response = sr1(packet, timeout=1, verbose=0)
+    
+    if response is None:
+        print(f"{host} está inativo ou não responde.")
+        return False
+    elif response.haslayer(ICMP):
+        if response[ICMP].type == 3 and response[ICMP].code in [1, 2, 3, 9, 10, 13]:
+            print(f"{host} está bloqueando ativamente o tráfego ICMP.")
+            return False
+        else:
+            print(f"{host} está respondendo.")
+            return True
+    else:
+        print(f"{host} está inativo ou não responde.")
+        return False
+
+# Função principal para solicitar IP e executar varredura
+def main():
+    while True:
+        host = input("Digite o endereço IP para escanear: ")
+        if icmp_ping(host):
+            tcp_port_scan(host)
+
+# Executar a função principal
+if __name__ == "__main__":
+    main()
