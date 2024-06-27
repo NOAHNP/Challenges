@@ -1,0 +1,10 @@
+DEBUG:root:Debug Information
+INFO:root:info Information
+WARNING:root:warning Information
+ERROR:root:error Information
+CRITICAL:root:critical Information
+DEBUG:root:Debug Information
+INFO:root:info Information
+WARNING:root:warning Information
+ERROR:root:error Information
+CRITICAL:root:critical Information
