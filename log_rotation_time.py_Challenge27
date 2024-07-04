@@ -1,0 +1,33 @@
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
+# Configuração básica do logger
+logger = logging.getLogger("MeuLogger")
+logger.setLevel(logging.DEBUG)  # Definindo o nível de log para DEBUG
+
+# Configuração do manipulador de arquivos com rotação baseada no tempo
+# 'app.log' é o nome do arquivo de log
+# when define quando a rotação deve ocorrer ('midnight' para meia-noite)
+# interval define o intervalo de rotação (1 dia neste caso)
+# backupCount define quantos arquivos de backup serão mantidos (7 neste caso)
+log_handler = TimedRotatingFileHandler("app.log", when="midnight", interval=1, backupCount=7)
+log_handler.setLevel(logging.DEBUG)  # Definindo o nível de log para o manipulador
+
+# Formato do log
+# %(asctime)s: Timestamp do log
+# %(name)s: Nome do logger
+# %(levelname)s: Nível do log (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+# %(message)s: Mensagem de log
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(formatter)
+
+# Adicionando o manipulador ao logger
+logger.addHandler(log_handler)
+
+# Função de exemplo que gera logs
+def minha_funcao():
+    for i in range(100):
+        logger.debug(f"Entrada de log {i}")  # Gerando mensagens de log
+
+if __name__ == "__main__":
+    minha_funcao()
