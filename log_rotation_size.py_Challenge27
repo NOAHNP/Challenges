@@ -1,0 +1,32 @@
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Configuração básica do logger
+logger = logging.getLogger("MeuLogger")
+logger.setLevel(logging.DEBUG)  # para definir o nível de log para DEBUG
+
+# Configuração do manipulador de arquivos com rotação baseada no tamanho
+# 'app.log' é o nome do arquivo de log
+# maxBytes define o tamanho máximo do arquivo de log em bytes (5 MB neste caso)
+# backupCount define quantos arquivos de backup serão mantidos (3 neste caso)
+log_handler = RotatingFileHandler("app.log", maxBytes=5*1024*1024, backupCount=3)
+log_handler.setLevel(logging.DEBUG)  # Definindo o nível de log para o manipulador
+
+# Formato do log
+# %(asctime)s: Timestamp do log
+# %(name)s: Nome do logger
+# %(levelname)s: Nível do log (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+# %(message)s: Mensagem de log
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(formatter)
+
+# Adicionando o manipulador ao logger
+logger.addHandler(log_handler)
+
+# Função para gerar logs
+def minha_funcao():
+    for i in range(100):
+        logger.debug(f"Entrada de log {i}")  # Gerando mensagens de log
+
+if __name__ == "__main__":
+    minha_funcao()
