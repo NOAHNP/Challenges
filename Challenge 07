@@ -1,0 +1,66 @@
+from cryptography.fernet import Fernet
+import os
+
+# Gerar chave e salvar em um arquivo
+def generate_key():
+    key = Fernet.generate_key()
+    with open("secret.key", "wb") as key_file:
+        key_file.write(key)
+
+# Carregar a chave
+def load_key():
+    return open("secret.key", "rb").read()
+
+# Criptografar um arquivo
+def encrypt_file(file_path, key):
+    fernet = Fernet(key)
+    with open(file_path, "rb") as file:
+        original = file.read()
+    encrypted = fernet.encrypt(original)
+    with open(file_path, "wb") as encrypted_file:
+        encrypted_file.write(encrypted)
+
+# Descriptografar um arquivo
+def decrypt_file(file_path, key):
+    fernet = Fernet(key)
+    with open(file_path, "rb") as file:
+        encrypted = file.read()
+    decrypted = fernet.decrypt(encrypted)
+    with open(file_path, "wb") as decrypted_file:
+        decrypted_file.write(decrypted)
+# Criptografar uma pasta recursivamente
+def encrypt_folder(folder_path, key):
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            encrypt_file(file_path, key)
+            print(f'Encrypted: {file_path}')
+
+# Descriptografar uma pasta recursivamente
+def decrypt_folder(folder_path, key):
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            decrypt_file(file_path, key)
+            print(f'Decrypted: {file_path}')
+
+
+if __name__ == "__main__":
+    # Certifique-se de que uma chave existe
+    if not os.path.exists("secret.key"):
+        generate_key()
+
+    key = load_key()
+
+    # Solicitar ao usuário que escolha criptografar ou descriptografar
+    action = input("Você deseja (E)ncriptar ou (D)escriptografar? ").lower()
+    folder_path = input("Digite o caminho da pasta: ")
+
+    if action == 'e':
+        encrypt_folder(folder_path, key)
+        print("Criptografia completa.")
+    elif action == 'd':
+        decrypt_folder(folder_path, key)
+        print("Descriptografia completa.")
+    else:
+        print("Opção inválida. Escolha 'E' para criptografar ou 'D' para descriptografar.")
