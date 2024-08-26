@@ -1,0 +1,60 @@
+https://docs.google.com/document/d/1bEoTFX1gwSL1Z7OGIKLQfYgH9hcA55xhrK8qcTdTTn4/edit?usp=sharing
+
+import os
+import ctypes
+import requests
+import tkinter as tk
+
+def download_image(url, save_path):
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open(save_path, 'wb') as file:
+            file.write(response.content)
+
+def set_wallpaper(image_path):
+    SPI_SETDESKWALLPAPER = 20 
+    ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, image_path, 3)
+
+def ransomware_popup():
+    # Cria uma janela popup com uma mensagem de ransomware
+    popup = tk.Tk()
+    popup.wm_title("Ransomware Alert")
+    label = tk.Label(popup, text="Seus arquivos foram criptografados!\nPague para recuperar o acesso.", padx=20, pady=20)
+    label.pack(side="top", fill="x", pady=10)
+    ok_button = tk.Button(popup, text="OK", command=popup.destroy)
+    ok_button.pack()
+    popup.mainloop()
+
+def main_menu():
+    while True:
+        print("Escolha uma opção:")
+        print("1. Criptografar arquivos")
+        print("2. Ransomware")
+        print("3. Pagar o resgate")
+        choice = input("O que vai ser???: ")
+
+        if choice == '1':
+            # Aqui vai a função de criptografia
+            print("Criptografando arquivos...")
+        elif choice == '2':
+            print("Simulando ransomware...")
+            
+            # URL da imagem de ransomware
+            image_url = "https://wallpapers.com/images/hd/malware-7s5n58a1mnq81udd.jpg"
+            # Caminho local para salvar a imagem temporariamente
+            save_path = os.path.join(os.getenv('TEMP'), 'ransomware_wallpaper.jpg')
+            
+            # Baixar a imagem e definir como papel de parede
+            download_image(image_url, save_path)
+            set_wallpaper(save_path)
+            
+            # Mostrar o popup
+            ransomware_popup()
+        elif choice == '3':
+            print("Entidade 12345 Ref 67891011 Valor 100.000€")
+            break
+        else:
+            print("Não escapas, só podes escolher 1, 2 ou 3. Que pena...")
+
+# Iniciar o menu principal
+main_menu()
