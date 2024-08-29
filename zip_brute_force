@@ -1,3 +1,5 @@
+https://docs.google.com/document/d/1pmozrQDhgwk6S-_sMhY88_nwZxK9N_5MsY4BmUamOIk/edit?usp=sharing
+
 import zipfile
 
 def brute_force_zip(zip_file, wordlist):
