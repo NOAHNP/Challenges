@@ -1,0 +1,20 @@
+import zipfile
+
+def brute_force_zip(zip_file, wordlist):
+    zip_file = zipfile.zipfile(zip_file)
+    with open(wordlist, "r") as file:
+        for word in file:
+            word = word.strip()
+            try:
+                zip_file.extractall(pwd=word.encode("utf-8"))
+                print(f"Pass found:{word}  ")
+                return True
+            except:
+                pass
+    print("pass not found in the wordlist.")
+    return False
+
+zip_file = input("type the zip file path:")
+wordlist_path = input("type the wordlist path:")
+
+brute_force_zip(zip_file, wordlist_path)
